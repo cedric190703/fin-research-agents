@@ -11,6 +11,22 @@ from marginalia.tools.provenance import ToolRegistry
 
 Statement = Mapping[str, float]
 
+RATIO_UNITS = {
+    "gross_margin": "ratio",
+    "operating_margin": "ratio",
+    "net_margin": "ratio",
+    "net_debt": "USD",
+    "debt_to_equity": "x",
+    "interest_coverage": "x",
+    "free_cash_flow": "USD",
+    "net_debt_to_ebitda": "x",
+    "market_cap": "USD",
+    "enterprise_value": "USD",
+    "fcf_yield": "ratio",
+    "ev_to_ebitda": "x",
+    "pe": "x",
+}
+
 
 def _get(s: Statement, key: str) -> float:
     if key not in s:

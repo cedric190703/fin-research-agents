@@ -1,10 +1,10 @@
 import httpx
 import respx
 
-from marginalia.knowledge.embeddings import VOYAGE_URL, HashingEmbedder, VoyageEmbedder, cosine
-from marginalia.knowledge.fusion import reciprocal_rank_fusion
-from marginalia.knowledge.retrieval import HybridRetriever, citation_for, compare_sections
-from marginalia.knowledge.store import Filters, InMemoryStore
+from fin_research.knowledge.embeddings import VOYAGE_URL, HashingEmbedder, VoyageEmbedder, cosine
+from fin_research.knowledge.fusion import reciprocal_rank_fusion
+from fin_research.knowledge.retrieval import HybridRetriever, citation_for, compare_sections
+from fin_research.knowledge.store import Filters, InMemoryStore
 
 # --- embeddings ---------------------------------------------------------------
 

@@ -10,10 +10,10 @@ import json
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 
-from marginalia.knowledge.retrieval import HybridRetriever, compare_sections
-from marginalia.knowledge.store import ChunkStore, Filters
-from marginalia.tools.finance import RATIO_UNITS
-from marginalia.tools.provenance import ToolRegistry
+from fin_research.knowledge.retrieval import HybridRetriever, compare_sections
+from fin_research.knowledge.store import ChunkStore, Filters
+from fin_research.tools.finance import RATIO_UNITS
+from fin_research.tools.provenance import ToolRegistry
 
 FundamentalsLoader = Callable[[str, int], Mapping[str, float]]
 

@@ -12,9 +12,9 @@ from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 
-from marginalia.agents.runtime import AgentResult, AgentRuntime, AgentSpec
-from marginalia.agents.toolkits import CriticToolkit, FilingsToolkit, QuantToolkit
-from marginalia.schemas import (
+from fin_research.agents.runtime import AgentResult, AgentRuntime, AgentSpec
+from fin_research.agents.toolkits import CriticToolkit, FilingsToolkit, QuantToolkit
+from fin_research.schemas import (
     CostLedger,
     Depth,
     Finding,

@@ -25,11 +25,11 @@ class Settings(BaseSettings):
     embedding_dim: int = 1024
 
     # Storage
-    database_url: str = "postgresql://marginalia:marginalia@localhost:5432/marginalia"
+    database_url: str = "postgresql://fin_research:fin_research@localhost:5432/fin_research"
 
     # External data
     sec_user_agent: str = Field(
-        default="Marginalia research bot contact@example.com",
+        default="FinResearchAgents bot contact@example.com",
         description="SEC requires a descriptive User-Agent with contact details.",
     )
     fred_api_key: str | None = None

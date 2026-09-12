@@ -6,13 +6,13 @@ import argparse
 import json
 import sys
 
-from marginalia.api.deps import build_container
-from marginalia.ingestion.pipeline import build_chunks
-from marginalia.schemas import Depth
+from fin_research.api.deps import build_container
+from fin_research.ingestion.pipeline import build_chunks
+from fin_research.schemas import Depth
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="marginalia")
+    parser = argparse.ArgumentParser(prog="fin-research")
     sub = parser.add_subparsers(dest="cmd", required=True)
     p_ing = sub.add_parser("ingest", help="Fetch and index filings for a ticker")
     p_ing.add_argument("ticker")

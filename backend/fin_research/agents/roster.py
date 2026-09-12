@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from marginalia.agents.runtime import AgentSpec, load_prompt
-from marginalia.config import Settings
-from marginalia.schemas import FindingList, Memo, MetricTable, ResearchPlan, Verdict
+from fin_research.agents.runtime import AgentSpec, load_prompt
+from fin_research.config import Settings
+from fin_research.schemas import FindingList, Memo, MetricTable, ResearchPlan, Verdict
 
 
 def build_roster(settings: Settings, effort: str = "medium") -> dict[str, AgentSpec]:  # type: ignore[type-arg]

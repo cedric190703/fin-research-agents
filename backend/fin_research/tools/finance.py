@@ -7,7 +7,7 @@ from collections.abc import Mapping, Sequence
 
 import numpy as np
 
-from marginalia.tools.provenance import ToolRegistry
+from fin_research.tools.provenance import ToolRegistry
 
 Statement = Mapping[str, float]
 

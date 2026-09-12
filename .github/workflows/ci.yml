@@ -16,7 +16,7 @@ jobs:
       - run: uv python install 3.12
       - run: uv sync --all-extras
       - run: uv run ruff check . && uv run ruff format --check .
-      - run: uv run mypy marginalia
+      - run: uv run mypy fin_research
       - run: uv run pytest
 
   frontend:

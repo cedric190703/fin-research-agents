@@ -13,7 +13,7 @@ backend-test:
 	cd backend && uv run pytest
 
 backend-lint:
-	cd backend && uv run ruff check . && uv run ruff format --check . && uv run mypy marginalia
+	cd backend && uv run ruff check . && uv run ruff format --check . && uv run mypy fin_research
 
 frontend-install:
 	cd frontend && npm ci

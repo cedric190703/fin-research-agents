@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Literal
 
-from marginalia.schemas import ResearchResult, RunEvent
+from fin_research.schemas import ResearchResult, RunEvent
 
 Status = Literal["queued", "running", "done", "error"]
 _SENTINEL = None

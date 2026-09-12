@@ -8,7 +8,7 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import Any
 
-from marginalia.schemas import Metric, Provenance
+from fin_research.schemas import Metric, Provenance
 
 ToolFn = Callable[..., dict[str, float]]
 

@@ -16,7 +16,7 @@ from typing import Any, Protocol, TypeVar
 
 from pydantic import BaseModel
 
-from marginalia.schemas import CostLedger
+from fin_research.schemas import CostLedger
 
 T = TypeVar("T", bound=BaseModel)
 

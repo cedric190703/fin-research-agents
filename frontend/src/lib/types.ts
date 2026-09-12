@@ -1,4 +1,4 @@
-// Mirrors backend/marginalia/schemas.py. Keep the two in sync by hand — the
+// Mirrors backend/fin_research/schemas.py. Keep the two in sync by hand — the
 // contract is small and a generated client would be heavier than it's worth.
 
 export type Depth = 'brief' | 'standard' | 'deep'

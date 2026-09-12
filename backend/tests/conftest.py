@@ -2,9 +2,9 @@
 
 import pytest
 
-from marginalia.knowledge.embeddings import HashingEmbedder
-from marginalia.knowledge.store import InMemoryStore
-from marginalia.schemas import Chunk
+from fin_research.knowledge.embeddings import HashingEmbedder
+from fin_research.knowledge.store import InMemoryStore
+from fin_research.schemas import Chunk
 
 
 def make_chunk(

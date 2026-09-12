@@ -6,17 +6,17 @@ import os
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 
-from marginalia.agents.orchestrator import EventSink, Orchestrator
-from marginalia.agents.roster import build_roster
-from marginalia.agents.runtime import AgentRuntime, AnthropicRuntime
-from marginalia.agents.toolkits import CriticToolkit, FilingsToolkit, QuantToolkit
-from marginalia.config import Settings, get_settings
-from marginalia.ingestion.edgar import EdgarClient
-from marginalia.knowledge.embeddings import Embedder, HashingEmbedder, VoyageEmbedder
-from marginalia.knowledge.retrieval import HybridRetriever
-from marginalia.knowledge.store import ChunkStore, InMemoryStore
-from marginalia.tools.finance import default_registry
-from marginalia.tools.provenance import ToolRegistry
+from fin_research.agents.orchestrator import EventSink, Orchestrator
+from fin_research.agents.roster import build_roster
+from fin_research.agents.runtime import AgentRuntime, AnthropicRuntime
+from fin_research.agents.toolkits import CriticToolkit, FilingsToolkit, QuantToolkit
+from fin_research.config import Settings, get_settings
+from fin_research.ingestion.edgar import EdgarClient
+from fin_research.knowledge.embeddings import Embedder, HashingEmbedder, VoyageEmbedder
+from fin_research.knowledge.retrieval import HybridRetriever
+from fin_research.knowledge.store import ChunkStore, InMemoryStore
+from fin_research.tools.finance import default_registry
+from fin_research.tools.provenance import ToolRegistry
 
 
 @dataclass
@@ -56,7 +56,7 @@ def build_container(settings: Settings | None = None) -> Container:
     backend = os.environ.get("STORE_BACKEND", "memory")
     store: ChunkStore
     if backend == "postgres":
-        from marginalia.knowledge.store import PostgresStore
+        from fin_research.knowledge.store import PostgresStore
 
         store = PostgresStore(settings.database_url)
     else:

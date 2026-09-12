@@ -3,11 +3,11 @@ import json
 import httpx
 import respx
 
-from marginalia.ingestion.chunking import ChunkSpec, chunk_section, estimate_tokens
-from marginalia.ingestion.clean import clean_html
-from marginalia.ingestion.edgar import SUBMISSIONS_URL, EdgarClient, FilingRef, parse_submissions
-from marginalia.ingestion.pipeline import build_chunks
-from marginalia.ingestion.sections import split_sections
+from fin_research.ingestion.chunking import ChunkSpec, chunk_section, estimate_tokens
+from fin_research.ingestion.clean import clean_html
+from fin_research.ingestion.edgar import SUBMISSIONS_URL, EdgarClient, FilingRef, parse_submissions
+from fin_research.ingestion.pipeline import build_chunks
+from fin_research.ingestion.sections import split_sections
 
 # --- edgar --------------------------------------------------------------------
 

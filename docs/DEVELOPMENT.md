@@ -13,8 +13,8 @@
 ```bash
 cp .env.example .env          # add ANTHROPIC_API_KEY (and VOYAGE_API_KEY for real embeddings)
 make backend-install frontend-install
-cd backend && uv run marginalia ingest AAPL --limit 4      # EDGAR → chunks (a minute or two)
-uv run uvicorn marginalia.api.main:app_factory --factory --reload   # :8000
+cd backend && uv run fin-research ingest AAPL --limit 4      # EDGAR → chunks (a minute or two)
+uv run uvicorn fin_research.api.main:app_factory --factory --reload   # :8000
 cd ../frontend && npm run dev                                # :5173, proxies /api → :8000
 ```
 
@@ -31,15 +31,15 @@ Backend tests never call the network or an LLM: EDGAR/Voyage are mocked with `re
 
 ## Conventions
 
-- **Contracts first.** Anything crossing an agent boundary or the HTTP boundary is a Pydantic model in `backend/marginalia/schemas.py`, mirrored in `frontend/src/lib/types.ts`. Change both.
-- **Numbers are code.** New metrics go in `backend/marginalia/tools/finance.py` as pure functions and are exposed through `QuantToolkit`, so they get provenance and `recompute` for free.
-- **Prompts are files.** `backend/marginalia/agents/prompts/<agent>.md`; keep them stable — they're the cached prefix.
+- **Contracts first.** Anything crossing an agent boundary or the HTTP boundary is a Pydantic model in `backend/fin_research/schemas.py`, mirrored in `frontend/src/lib/types.ts`. Change both.
+- **Numbers are code.** New metrics go in `backend/fin_research/tools/finance.py` as pure functions and are exposed through `QuantToolkit`, so they get provenance and `recompute` for free.
+- **Prompts are files.** `backend/fin_research/agents/prompts/<agent>.md`; keep them stable — they're the cached prefix.
 - **Tool docstrings are the schema.** The SDK builds tool descriptions and parameter docs from the Google-style docstring; `tests/test_agents.py` asserts every toolkit function has one.
 - **One commit per feature**, message body explains the *why*.
 
 ## Adding a ticker's fundamentals
 
-`QuantToolkit` takes a `load_fundamentals(ticker, fiscal_year)` callable. `marginalia/tools/market.py::fundamentals_from_companyfacts` maps an EDGAR companyfacts payload onto the statement keys `compute_ratios` expects; wire it in `api/deps.py` (currently a stub that raises until Phase 4 lands the `fundamentals` table loader).
+`QuantToolkit` takes a `load_fundamentals(ticker, fiscal_year)` callable. `fin_research/tools/market.py::fundamentals_from_companyfacts` maps an EDGAR companyfacts payload onto the statement keys `compute_ratios` expects; wire it in `api/deps.py` (currently a stub that raises until Phase 4 lands the `fundamentals` table loader).
 
 ## Where things are decided
 

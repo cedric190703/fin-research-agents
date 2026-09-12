@@ -36,4 +36,4 @@ A failed run emits `error` with `payload.error` and a truncated traceback. The s
 
 ## Result shape
 
-`GET /research/{id}` → `result` is a `ResearchResult` (see `backend/marginalia/schemas.py` / `frontend/src/lib/types.ts`): `memo`, `verdict`, `revisions`, `cost` (tokens + USD), and the full `events` list. Claims the Critic could not support after the last revision are prefixed `⚠ UNVERIFIED:` — never removed.
+`GET /research/{id}` → `result` is a `ResearchResult` (see `backend/fin_research/schemas.py` / `frontend/src/lib/types.ts`): `memo`, `verdict`, `revisions`, `cost` (tokens + USD), and the full `events` list. Claims the Critic could not support after the last revision are prefixed `⚠ UNVERIFIED:` — never removed.

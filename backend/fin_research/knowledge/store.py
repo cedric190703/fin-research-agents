@@ -16,8 +16,8 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field
 from typing import Protocol
 
-from marginalia.knowledge.embeddings import cosine
-from marginalia.schemas import Chunk
+from fin_research.knowledge.embeddings import cosine
+from fin_research.schemas import Chunk
 
 _TOKEN = re.compile(r"[a-z0-9]+")
 

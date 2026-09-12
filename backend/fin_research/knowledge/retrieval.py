@@ -6,10 +6,10 @@ import difflib
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
-from marginalia.knowledge.embeddings import Embedder
-from marginalia.knowledge.fusion import reciprocal_rank_fusion
-from marginalia.knowledge.store import ChunkStore, Filters
-from marginalia.schemas import Chunk, Citation, RetrievedChunk
+from fin_research.knowledge.embeddings import Embedder
+from fin_research.knowledge.fusion import reciprocal_rank_fusion
+from fin_research.knowledge.store import ChunkStore, Filters
+from fin_research.schemas import Chunk, Citation, RetrievedChunk
 
 Reranker = Callable[[str, list[Chunk]], list[float]]
 

@@ -2,14 +2,14 @@ import math
 
 import pytest
 
-from marginalia.tools.finance import (
+from fin_research.tools.finance import (
     compute_ratios,
     dcf_sensitivity,
     default_registry,
     run_comps,
     run_dcf,
 )
-from marginalia.tools.market import fundamentals_from_companyfacts
+from fin_research.tools.market import fundamentals_from_companyfacts
 
 STATEMENT = {
     "revenue": 1000.0,

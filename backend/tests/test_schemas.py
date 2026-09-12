@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from marginalia.schemas import (
+from fin_research.schemas import (
     Citation,
     ClaimVerdict,
     CostLedger,

@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 
-from marginalia.ingestion.chunking import ChunkSpec, chunk_section
-from marginalia.ingestion.clean import clean_html
-from marginalia.ingestion.edgar import FilingRef
-from marginalia.ingestion.sections import split_sections
-from marginalia.schemas import Chunk
+from fin_research.ingestion.chunking import ChunkSpec, chunk_section
+from fin_research.ingestion.clean import clean_html
+from fin_research.ingestion.edgar import FilingRef
+from fin_research.ingestion.sections import split_sections
+from fin_research.schemas import Chunk
 
 
 def build_chunks(ref: FilingRef, html: str, spec: ChunkSpec | None = None) -> list[Chunk]:

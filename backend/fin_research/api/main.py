@@ -13,12 +13,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from sse_starlette.sse import EventSourceResponse
 
-from marginalia import __version__
-from marginalia.agents.orchestrator import DEPTH_POLICY
-from marginalia.api.deps import Container, build_container
-from marginalia.api.runs import RunRegistry, RunState
-from marginalia.ingestion.pipeline import build_chunks
-from marginalia.schemas import Depth, ResearchResult, RunEvent
+from fin_research import __version__
+from fin_research.agents.orchestrator import DEPTH_POLICY
+from fin_research.api.deps import Container, build_container
+from fin_research.api.runs import RunRegistry, RunState
+from fin_research.ingestion.pipeline import build_chunks
+from fin_research.schemas import Depth, ResearchResult, RunEvent
 
 
 class ResearchRequest(BaseModel):
@@ -70,7 +70,7 @@ def _summary(s: RunState) -> RunSummary:
 
 
 def create_app(container: Container | None = None) -> FastAPI:
-    app = FastAPI(title="Marginalia API", version=__version__)
+    app = FastAPI(title="FinResearchAgents API", version=__version__)
     app.add_middleware(
         CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"]
     )
@@ -166,5 +166,5 @@ def create_app(container: Container | None = None) -> FastAPI:
 
 
 def app_factory() -> FastAPI:
-    """Entry point for `uvicorn marginalia.api.main:app_factory --factory`."""
+    """Entry point for `uvicorn fin_research.api.main:app_factory --factory`."""
     return create_app()

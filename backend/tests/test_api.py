@@ -4,14 +4,14 @@ import httpx
 import respx
 from fastapi.testclient import TestClient
 
-from marginalia.agents.runtime import FakeRuntime
-from marginalia.api.deps import Container
-from marginalia.api.main import create_app
-from marginalia.config import Settings
-from marginalia.ingestion.edgar import SUBMISSIONS_URL, TICKERS_URL, EdgarClient
-from marginalia.knowledge.embeddings import HashingEmbedder
-from marginalia.knowledge.store import InMemoryStore
-from marginalia.tools.finance import default_registry
+from fin_research.agents.runtime import FakeRuntime
+from fin_research.api.deps import Container
+from fin_research.api.main import create_app
+from fin_research.config import Settings
+from fin_research.ingestion.edgar import SUBMISSIONS_URL, TICKERS_URL, EdgarClient
+from fin_research.knowledge.embeddings import HashingEmbedder
+from fin_research.knowledge.store import InMemoryStore
+from fin_research.tools.finance import default_registry
 from tests.test_agents import FAIL, FINDINGS, MEMO, METRICS, PASS, PLAN
 from tests.test_finance_tools import STATEMENT
 from tests.test_ingestion import SUBMISSIONS, make_filing_text
@@ -133,8 +133,8 @@ def test_ingest_endpoint_indexes_filings():
 
 
 def test_run_state_subscribe_after_close_replays_backlog_and_closes():
-    from marginalia.api.runs import RunRegistry
-    from marginalia.schemas import RunEvent
+    from fin_research.api.runs import RunRegistry
+    from fin_research.schemas import RunEvent
 
     reg = RunRegistry()
     st = reg.create("AAPL", "q", "brief")

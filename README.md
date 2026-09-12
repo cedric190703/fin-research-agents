@@ -1,4 +1,4 @@
-# Marginalia
+# FinResearchAgents
 
 **Multi-agent equity research grounded in SEC filings.**
 
@@ -21,8 +21,8 @@ POST /research {ticker: "AAPL", depth: "deep"}
 ```bash
 cp .env.example .env               # set ANTHROPIC_API_KEY (VOYAGE_API_KEY optional)
 make backend-install frontend-install
-cd backend && uv run marginalia ingest AAPL --limit 4
-uv run uvicorn marginalia.api.main:app_factory --factory --reload      # API on :8000
+cd backend && uv run fin-research ingest AAPL --limit 4
+uv run uvicorn fin_research.api.main:app_factory --factory --reload      # API on :8000
 cd ../frontend && npm run dev                                           # UI on :5173
 ```
 
@@ -33,7 +33,7 @@ Or the whole stack with Postgres + pgvector: `make up`. Full instructions in [do
 ```
 .
 ├── backend/                      Python 3.12 · FastAPI · Anthropic SDK          → backend/README.md
-│   ├── marginalia/
+│   ├── fin_research/
 │   │   ├── schemas.py            Typed contracts for every agent + API boundary (Finding, Memo, Verdict…)
 │   │   ├── config.py             Settings from env / .env (models, keys, chunk sizes, budgets)
 │   │   ├── ingestion/            EDGAR client → HTML clean → Item split → parent/child chunks
@@ -47,7 +47,7 @@ Or the whole stack with Postgres + pgvector: `make up`. Full instructions in [do
 │   │   │   ├── orchestrator.py   Plan → parallel fan-out → write → critic → revise loop → result
 │   │   │   └── prompts/          One frozen system prompt per agent (the cached prefix)
 │   │   ├── api/                  FastAPI app, dependency container, background run registry + SSE
-│   │   └── cli.py                marginalia ingest | research | coverage
+│   │   └── cli.py                fin-research ingest | research | coverage
 │   ├── sql/schema.sql            Postgres schema (pgvector HNSW + tsvector GIN)
 │   ├── tests/                    pytest — 57 tests, no network, no tokens
 │   └── Dockerfile
@@ -80,8 +80,8 @@ Or the whole stack with Postgres + pgvector: `make up`. Full instructions in [do
 | [docs/API.md](docs/API.md) | Every endpoint, the SSE event sequence, depth semantics, result shape |
 | [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Running locally or in Docker, testing, linting, project conventions |
 | [backend/README.md](backend/README.md) · [frontend/README.md](frontend/README.md) | Per-package commands and layout |
-| `backend/marginalia/schemas.py` | The source of truth for every data shape in the system |
-| `backend/marginalia/agents/prompts/` | What each agent is told |
+| `backend/fin_research/schemas.py` | The source of truth for every data shape in the system |
+| `backend/fin_research/agents/prompts/` | What each agent is told |
 
 ## Stack
 

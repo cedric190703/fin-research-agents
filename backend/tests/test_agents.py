@@ -2,13 +2,13 @@ import json
 
 import pytest
 
-from marginalia.agents.orchestrator import Orchestrator, flag_unsupported, render_writer_input
-from marginalia.agents.roster import build_roster
-from marginalia.agents.runtime import AgentSpec, FakeRuntime, cost_from_usage, load_prompt
-from marginalia.agents.toolkits import CriticToolkit, FilingsToolkit, QuantToolkit
-from marginalia.config import Settings
-from marginalia.knowledge.retrieval import HybridRetriever
-from marginalia.schemas import (
+from fin_research.agents.orchestrator import Orchestrator, flag_unsupported, render_writer_input
+from fin_research.agents.roster import build_roster
+from fin_research.agents.runtime import AgentSpec, FakeRuntime, cost_from_usage, load_prompt
+from fin_research.agents.toolkits import CriticToolkit, FilingsToolkit, QuantToolkit
+from fin_research.config import Settings
+from fin_research.knowledge.retrieval import HybridRetriever
+from fin_research.schemas import (
     Citation,
     ClaimVerdict,
     Depth,
@@ -21,7 +21,7 @@ from marginalia.schemas import (
     ResearchTask,
     Verdict,
 )
-from marginalia.tools.finance import default_registry
+from fin_research.tools.finance import default_registry
 from tests.test_finance_tools import STATEMENT
 
 # --- fixtures -----------------------------------------------------------------
@@ -277,7 +277,7 @@ def test_standard_depth_allows_one_revision(toolkits):
 
 
 def test_render_writer_input_numbers_findings_and_metrics():
-    from marginalia.tools.finance import default_registry
+    from fin_research.tools.finance import default_registry
 
     reg = default_registry()
     metrics = reg.call(

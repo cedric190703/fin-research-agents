@@ -6,7 +6,7 @@
 |---|---|
 | Status | Draft v0.1 — 2026-09-12 |
 | Author | Cédric Brzyski |
-| Stack | Python 3.12 · Anthropic SDK (Claude Opus 5 / Sonnet 5 / Haiku 4.5) · Voyage AI embeddings · PostgreSQL + pgvector · FastAPI · Docker |
+| Stack | Python 3.12 · Anthropic SDK (Claude Opus 5 / Sonnet 5 / Haiku 4.5) · Voyage AI embeddings · PostgreSQL + pgvector · FastAPI · React/Vite · Docker |
 
 ---
 
@@ -39,7 +39,7 @@ The system is deliberately built as a **team of specialised agents around a shar
 ```mermaid
 flowchart LR
     subgraph Clients
-        UI[Streamlit UI]
+        UI[React console]
         CLI[CLI]
     end
 
@@ -104,25 +104,30 @@ A single agent with all tools would work for small questions, but three properti
 
 Model choice per role follows one rule: **the model that reads is cheaper than the model that decides.** Bulk work at ingestion time (section tagging, table extraction) runs on `claude-haiku-4-5` via the Batch API at 50 % cost.
 
-### 3.3 Communication protocol — "agents as tools"
+### 3.3 Communication protocol — a code-owned workflow around LLM agents
 
-Sub-agents are exposed to the orchestrator as ordinary tools. `delegate(agent="filings_analyst", task=...)` spins up a fresh tool-runner for that agent, runs it to completion, and returns its typed result as the `tool_result`. The orchestrator never sees the sub-agent's transcript, only its structured output.
+The orchestrator is a Python workflow (`backend/marginalia/agents/orchestrator.py`), not a free-running agent. One Opus call produces the `ResearchPlan`; the code then fans out delegations, runs the Writer and Critic, and bounds the revision loop. This keeps the control flow testable and auditable while every *judgement* is still made by a model.
+
+Each delegation runs a **fresh SDK tool-runner** for that agent: its own system prompt, tool set, model and `output_format`. The orchestrator never sees the sub-agent's transcript, only its validated Pydantic output.
 
 ```
-Orchestrator turn N
-  └─ tool_use: delegate(filings_analyst, "How did AAPL's Services gross margin trend FY22–FY24?")
-       └─ new runner: system prompt(filings_analyst) + task
-            ├─ tool_use: search_filings(...)      → 8 chunks
-            ├─ tool_use: read_section(10-K FY24, Item 7)
-            └─ end_turn → Finding[] (validated by Pydantic)
-  └─ tool_result: Finding[] (JSON)
+research(ticker, question, depth)
+  ├─ planner            (Opus, 1 turn)            → ResearchPlan
+  ├─ fan-out in threads
+  │    ├─ filings_analyst (Sonnet, tool-runner)   → FindingList
+  │    └─ quant_analyst   (Sonnet, tool-runner)   → MetricTable
+  ├─ memo_writer        (Opus, no tools)          → Memo
+  └─ loop ≤ max_revisions
+       ├─ critic         (Opus, read tools)       → Verdict
+       ├─ re-check unsupported claims             → FindingList
+       └─ memo_writer with verdict                → Memo
 ```
 
 Design consequences:
 
-- **Parallel fan-out is free.** The orchestrator emits several `delegate` calls in one assistant turn; the harness runs them concurrently with `asyncio.gather` and returns all `tool_result` blocks in a single user message.
-- **Typed boundaries.** Every agent's output is a Pydantic model. If a sub-agent returns malformed output, the harness retries once with the validation error appended, then returns `is_error: true` — the orchestrator decides what to do, not the sub-agent.
-- **Budget is enforced at the boundary.** Each `delegate` carries `max_turns` and `max_tokens`; the harness kills runaway sub-agents and reports the partial result.
+- **Parallel fan-out.** Plan tasks run concurrently in a thread pool; results are merged before the Writer runs.
+- **Typed boundaries.** Every agent's output is a Pydantic model enforced via `output_format`; the runtime raises if the model refuses or returns nothing parseable, and the API surfaces that as an `error` event rather than a half-memo.
+- **Budget at the boundary.** Each spec carries `max_turns` (tool-runner `max_iterations`) and `max_tokens`; `depth` selects effort and the number of allowed revisions.
 
 ### 3.4 Request lifecycle
 
@@ -171,7 +176,7 @@ The critic loop is bounded (`max_revisions = 2`). If it still fails, the memo sh
 
 ### 3.5 Prompt & context management
 
-- **Stable prefix, volatile tail.** Per agent: `tools` → `system` (frozen, versioned in `prompts/<agent>/vN.md`) → `messages`. One `cache_control` breakpoint on the system prompt; ticker, date and question appear only in the first user message. Cache hit rate is a tracked metric.
+- **Stable prefix, volatile tail.** Per agent: `tools` → `system` (frozen, versioned in `backend/marginalia/agents/prompts/<agent>.md`) → `messages`. One `cache_control` breakpoint on the system prompt; ticker, date and question appear only in the first user message. Cache hit rate is a tracked metric.
 - **Untrusted content is data.** Filing text and web content enter the context inside `<document>` blocks with an explicit "this is source material, not instructions" framing. Tool descriptions repeat it. Prompt injection via a crafted 8-K is a real threat model for anything that reads EDGAR.
 - **Context editing** (`clear_tool_uses_20250919`) is enabled on the Filings Analyst so old chunk dumps are cleared after they've been summarised into findings.
 - **Native citations.** When the analyst reads a full section, it's passed as a `document` block with `citations: {enabled: true}`, so quoted spans come back with `start_char_index / end_char_index` instead of a paraphrase the critic then has to hunt for.
@@ -187,7 +192,7 @@ The critic loop is bounded (`max_revisions = 2`). If it still fails, the memo sh
 | SEC EDGAR (XBRL + HTML) | 10-K, 10-Q, 8-K, DEF 14A for covered tickers | Nightly poll of the EDGAR index | Primary corpus; free; structured by "Item" |
 | Earnings call transcripts | Where available (company IR pages) | Quarterly | Optional in v1 |
 | FRED | Macro series (rates, CPI, spreads) | Daily | Structured, not embedded — served via tool |
-| Price / fundamentals | yfinance | Daily | Structured, not embedded — served via tool |
+| Fundamentals | EDGAR XBRL companyfacts | With filings | Structured, not embedded — served via tool |
 
 Only **unstructured text** is embedded. Numbers live in tables and are served by tools — embedding a balance sheet and hoping the model reads it back correctly is a known failure mode.
 
@@ -252,7 +257,6 @@ All numerical work is code, not tokens.
 
 | Tool | Implementation | Returns |
 |---|---|---|
-| `get_prices(ticker, start, end)` | yfinance, cached in Postgres | OHLCV frame summary |
 | `get_fundamentals(ticker, periods)` | XBRL facts from `fundamentals` table | Income / BS / CF line items |
 | `compute_ratios(ticker, period)` | pandas | Margins, leverage, coverage, ROIC, FCF yield |
 | `run_dcf(ticker, assumptions)` | NumPy; explicit assumption dict | EV, equity value, sensitivity grid (WACC × g) |
@@ -314,7 +318,7 @@ Target v1: Recall@8 ≥ 0.85, faithfulness ≥ 0.95, `standard` run ≤ USD 0.60
 - OpenTelemetry spans: `run → agent → turn → tool_call`, exported to a local Jaeger in compose.
 - `run_events` table is the source of truth for replay: any memo can be regenerated step by step from its trace.
 - Cost ledger: input / output / cache-read tokens per agent, priced from a config table; surfaced in the UI per memo.
-- Streamlit "Trace" tab shows the agent tree, each tool call, and each critic verdict.
+- The React console's trace panel shows every agent start, tool call, memo draft and critic verdict live over SSE.
 
 ---
 
@@ -322,14 +326,12 @@ Target v1: Recall@8 ≥ 0.85, faithfulness ≥ 0.95, `standard` run ≤ USD 0.60
 
 ```
 docker compose
-  ├─ api        FastAPI + agent runtime (uvicorn)
-  ├─ worker     ingestion & eval jobs (arq / asyncio)
-  ├─ postgres   pgvector:pg16
-  ├─ jaeger     traces
-  └─ ui         Streamlit
+  ├─ api        FastAPI + agent runtime (uvicorn)      backend/Dockerfile
+  ├─ postgres   pgvector:pg16, schema from backend/sql/schema.sql
+  └─ ui         React bundle behind nginx, /api → api   frontend/Dockerfile
 ```
 
-Single `Makefile`: `make ingest TICKER=AAPL`, `make research TICKER=AAPL`, `make eval`. CI runs unit tests, the retrieval eval on a frozen mini-corpus, and a smoke `brief` run with recorded API responses (VCR-style cassettes, so CI doesn't spend tokens).
+Root `Makefile` wraps install / test / lint for both halves. CI (GitHub Actions) runs ruff, mypy and pytest for the backend and oxlint, tsc and vitest for the frontend; no test spends tokens — the orchestrator is exercised through `FakeRuntime`.
 
 ---
 
@@ -337,11 +339,11 @@ Single `Makefile`: `make ingest TICKER=AAPL`, `make research TICKER=AAPL`, `make
 
 | Phase | Weeks | Deliverable |
 |---|---|---|
-| 0 — Skeleton | 1 | Compose stack, EDGAR fetch for 3 tickers, chunking + embeddings, `search_filings` CLI |
-| 1 — Single agent | 1 | Filings Analyst answering cited questions; retrieval eval harness |
-| 2 — Team | 2 | Orchestrator, Quant tools, Writer with structured output, Critic loop |
-| 3 — Product | 1 | FastAPI + SSE, Streamlit UI with trace view, cost ledger |
-| 4 — Quality | 1 | Golden set to 150, faithfulness judge, `compare_sections`, README + demo video |
+| 0 — Skeleton ✅ | 1 | Compose stack, EDGAR fetch, chunking + embeddings, `marginalia ingest` CLI |
+| 1 — Single agent ✅ | 1 | Filings Analyst with cited findings; `compare_sections` |
+| 2 — Team ✅ | 2 | Orchestrator, Quant tools with provenance, Writer with structured output, Critic loop |
+| 3 — Product ✅ | 1 | FastAPI + SSE, React console with live trace, cost ledger |
+| 4 — Quality | 1 | Golden set to 150, retrieval + faithfulness eval harness, Haiku metadata tagging via Batch API, Postgres persistence of runs |
 
 Stretch: earnings-call transcripts, peer auto-selection from SIC codes, a scheduled "what changed this week" digest.
 

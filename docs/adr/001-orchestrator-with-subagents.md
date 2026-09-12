@@ -6,7 +6,7 @@
 A single Claude agent with every tool (search, market data, DCF, write memo) can produce a memo. But retrieval dumps 30–50 chunks into context per question, the writer then reasons over raw text it should never see, and there is no independent check on the output.
 
 ## Decision
-One orchestrator (Opus 5) plans and delegates. Sub-agents (Filings Analyst, Quant Analyst, Memo Writer, Critic) are exposed to it as tools (`delegate(agent, task)`). Each sub-agent runs in its own tool-runner with its own system prompt, tool set and model, and returns a Pydantic-validated result — never its transcript.
+One orchestrator plans (an Opus 5 call producing a `ResearchPlan`) and a code-owned workflow delegates. Sub-agents (Filings Analyst, Quant Analyst, Memo Writer, Critic) each run in their own SDK tool-runner with their own system prompt, tool set, model and `output_format`, and return a Pydantic-validated result — never their transcript. Control flow (fan-out, writer → critic → revise loop, budgets) is Python, so it is unit-tested with a fake runtime.
 
 ## Consequences
 + Orchestrator context stays small → high prompt-cache hit rate, cheaper turns.

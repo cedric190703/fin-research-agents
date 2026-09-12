@@ -44,8 +44,8 @@ def _word_spans(text: str) -> list[tuple[int, int]]:
     return [(m.start(), m.end()) for m in _WORD.finditer(text)]
 
 
-def _chunk_id(prefix: str, start: int, end: int) -> str:
-    return hashlib.sha1(f"{prefix}:{start}:{end}".encode()).hexdigest()[:16]
+def _chunk_id(prefix: str, level: str, start: int, end: int) -> str:
+    return hashlib.sha1(f"{prefix}:{level}:{start}:{end}".encode()).hexdigest()[:16]
 
 
 def _windows(
@@ -77,7 +77,7 @@ def chunk_section(text: str, *, id_prefix: str, spec: ChunkSpec | None = None) -
     chunks: list[TextChunk] = []
     for p_start, p_end in _windows(spans, parent_words, 0):
         parent = TextChunk(
-            id=_chunk_id(id_prefix, p_start, p_end),
+            id=_chunk_id(id_prefix, "parent", p_start, p_end),
             level="parent",
             text=text[p_start:p_end],
             char_start=p_start,
@@ -86,7 +86,7 @@ def chunk_section(text: str, *, id_prefix: str, spec: ChunkSpec | None = None) -
         p_spans = [s for s in spans if s[0] >= p_start and s[1] <= p_end]
         for c_start, c_end in _windows(p_spans, child_words, overlap_words):
             child = TextChunk(
-                id=_chunk_id(id_prefix, c_start, c_end),
+                id=_chunk_id(id_prefix, "child", c_start, c_end),
                 level="child",
                 text=text[c_start:c_end],
                 char_start=c_start,

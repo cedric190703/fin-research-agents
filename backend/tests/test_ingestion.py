@@ -155,3 +155,9 @@ def test_build_chunks_carries_filing_metadata_and_absolute_offsets():
     full_text = clean_html(html).text
     for c in chunks:
         assert full_text[c.char_start : c.char_end] == c.text
+
+
+def test_parent_and_child_with_identical_span_get_distinct_ids():
+    chunks = chunk_section("short section text", id_prefix="x")
+    assert len(chunks) == 2
+    assert len({c.id for c in chunks}) == 2

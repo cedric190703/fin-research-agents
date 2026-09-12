@@ -61,3 +61,4 @@ plugins = ["pydantic.mypy"]
 testpaths = ["tests"]
 asyncio_mode = "auto"
 addopts = "-q --cov=marginalia --cov-report=term-missing:skip-covered"
+filterwarnings = ["ignore::DeprecationWarning:starlette.testclient"]
